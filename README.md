@@ -14,6 +14,67 @@ This project automates the collection and analysis of threat intelligence data:
 - **Pulses:** 6,836 records (top-level threat metadata).
 - **Indicators:** 378,669 records (IoCs linked to pulses).
 
+## Splunk Dashboard: Threat Intel Overview
+Visualizes OTX threat intelligence with interactive panels:
+![Splunk Dashboard: Threat Intel Overview](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/Intel%20Overview%20Dashboard.jpg)
+*Splunk Dashboard displaying threat intelligence visualizations, including Indicator Type Breakdown, Expired vs Active Indicators, and more.*
+
+### Panels
+1. Indicator Type Breakdown (Pie Chart):
+    - Query: '| dbxquery connection=threat_intel query="SELECT type, COUNT(*) as count FROM indicators GROUP BY type" | eval percentage=round(count/sum(count)*100, 2) | table type count percentage'
+    - Shows distribution of IoC types (e.g., 'IPv4', 'URL').
+
+2. Expired vs Active Indicators (Pie Chart):
+    - Query: '| dbxquery connection=threat_intel query="SELECT CASE WHEN expiration < NOW() THEN 'Expired' ELSE 'Active' END as status, COUNT(*) as count FROM indicators WHERE expiration IS NOT NULL GROUP BY status" | eval percentage=round(count/sum(count)*100, 2)'
+    - Tracks indicator freshness.
+
+3. Top Pulses by Indicator Count (Bar Chart):
+    - Query: '| dbxquery connection=threat_intel query="SELECT p.id, p.name, COUNT(i.id) as indicator_count FROM pulses p LEFT JOIN indicators i ON p.id = i.pulse_id GROUP BY p.id, p.name ORDER BY indicator_count DESC LIMIT 10"'
+    - Highlights pulses with the most IoCs.
+
+4. Targeted Countries (Bar Chart):
+    - Query: '| dbxquery connection=threat_intel query="SELECT targeted_countries FROM pulses" | spath input=targeted_countries | mvexpand targeted_countries | stats count by targeted_countries'
+    - Shows geographic threat focus.
+
+5. Top Cybersecurity Tags (Bar Chart):
+    - Query: '| dbxquery connection=threat_intel query="SELECT tags FROM pulses" | spath input=tags | mvexpand tags | stats count by tags | sort -count | head 10'
+    - Identifies common threat themes.
+
+### Features
+- **Filter**: TLP dropdown for dynamic filtering (token: tlp_filter).
+- **Layout**: Pie charts top, line chart middle, bar charts bottom.
+
+### Usage
+1. Run ETL: 'python main.py' to refresh data.
+2. **View Dashboard**: Splunk > **Dashboards** > **Threat Intel Overview**.
+
+## Project Structure
+```
+Threat-Intel-ETL/
+├── main.py              # ETL pipeline entry point
+├── setup_db.py          # Database schema setup
+├── src/
+│   ├── config.py        # OTX and DB config
+│   ├── extract.py       # OTX data fetch
+│   ├── transform.py     # Data processing
+│   └── load.py          # PostgreSQL load
+├── images/              # Screenshots of IDE and dashboard
+│   ├── pycharm_ide_screenshot.png
+│   ├── splunk_dashboard_screenshot.png
+├── requirements.txt     # Python dependencies
+└── README.md
+```
+## Dependencies
+- 'requests'
+- 'OTXv2'
+- 'psycopg2'
+- 'pandas'
+
+Install with:
+```bash
+pip install -r requirements.txt
+```
+
 ## Prerequisites
 
 - **Python 3.8+:** With dependencies (`requirements.txt`).
@@ -23,6 +84,16 @@ This project automates the collection and analysis of threat intelligence data:
 - **OTX API Key:** From [otx.alienvault.com](https://otx.alienvault.com).
 
 ## Setup
+![PyCharm IDE with ETL Scripts](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/Threat-ETL-Intel%20-%20Python.jpg)
+*PyCharm IDE showing ETL scripts (main.py, setup_db.py, extract.py, transform.py) split-screen for development.*
+
+learn about GitHub images
+
+explore Splunk visualizations
+
+simplify captions
+
+
 
 ### 1. Clone the Repository
 ```bash
@@ -90,65 +161,6 @@ python main.py
   - **Configuration** > **Databases** > **New Database Connection**.
   - Name: 'threat_intel', Type: PostgreSQL, Host: 'localhost', Port: '5432', Database: 'threat_intel', Identity: 'postgres_threat_intel'.
   - Test and save.
-
-## Splunk Dashboard: Threat Intel Overview
-Visualizes OTX threat intelligence with interactive panels:
-
-### Panels
-1. Indicator Type Breakdown (Pie Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT type, COUNT(*) as count FROM indicators GROUP BY type" | eval percentage=round(count/sum(count)*100, 2) | table type count percentage'
-    - Shows distribution of IoC types (e.g., 'IPv4', 'URL').
-
-2. Expired vs Active Indicators (Pie Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT CASE WHEN expiration < NOW() THEN 'Expired' ELSE 'Active' END as status, COUNT(*) as count FROM indicators WHERE expiration IS NOT NULL GROUP BY status" | eval percentage=round(count/sum(count)*100, 2)'
-    - Tracks indicator freshness.
-
-3. Top Pulses by Indicator Count (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT p.id, p.name, COUNT(i.id) as indicator_count FROM pulses p LEFT JOIN indicators i ON p.id = i.pulse_id GROUP BY p.id, p.name ORDER BY indicator_count DESC LIMIT 10"'
-    - Highlights pulses with the most IoCs.
-
-4. Targeted Countries (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT targeted_countries FROM pulses" | spath input=targeted_countries | mvexpand targeted_countries | stats count by targeted_countries'
-    - Shows geographic threat focus.
-
-5. Top Cybersecurity Tags (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT tags FROM pulses" | spath input=tags | mvexpand tags | stats count by tags | sort -count | head 10'
-    - Identifies common threat themes.
-
-### Features
-- **Filter**: TLP dropdown for dynamic filtering (token: tlp_filter).
-- **Layout**: Pie charts top, line chart middle, bar charts bottom.
-
-### Usage
-1. Run ETL: 'python main.py' to refresh data.
-2. **View Dashboard**: Splunk > **Dashboards** > **Threat Intel Overview**.
-
-## Project Structure
-```
-Threat-Intel-ETL/
-├── main.py              # ETL pipeline entry point
-├── setup_db.py          # Database schema setup
-├── src/
-│   ├── config.py        # OTX and DB config
-│   ├── extract.py       # OTX data fetch
-│   ├── transform.py     # Data processing
-│   └── load.py          # PostgreSQL load
-├── images/              # Screenshots of IDE and dashboard
-│   ├── pycharm_ide_screenshot.png
-│   ├── splunk_dashboard_screenshot.png
-├── requirements.txt     # Python dependencies
-└── README.md
-```
-## Dependencies
-- 'requests'
-- 'OTXv2'
-- 'psycopg2'
-- 'pandas'
-
-Install with:
-```bash
-pip install -r requirements.txt
-```
 
 ## Notes
 - **Data Volume**: 6,836 pulses, 378,669 indicators as of March 8, 2025.
