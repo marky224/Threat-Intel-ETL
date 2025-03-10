@@ -21,23 +21,38 @@ Visualizes OTX threat intelligence with interactive panels:
 
 ### Panels
 1. Indicator Type Breakdown (Pie Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT type, COUNT(*) as count FROM indicators GROUP BY type" | eval percentage=round(count/sum(count)*100, 2) | table type count percentage'
+    - Query:
+      ```
+      | dbxquery connection=threat_intel query="SELECT type, COUNT(*) as count FROM indicators GROUP BY type" | eval percentage=round(count/sum(count)*100, 2) | table type count percentage
+      ```
     - Shows distribution of IoC types (e.g., 'IPv4', 'URL').
 
 2. Expired vs Active Indicators (Pie Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT CASE WHEN expiration < NOW() THEN 'Expired' ELSE 'Active' END as status, COUNT(*) as count FROM indicators WHERE expiration IS NOT NULL GROUP BY status" | eval percentage=round(count/sum(count)*100, 2)'
+    - Query:
+      ```
+      | dbxquery connection=threat_intel query="SELECT CASE WHEN expiration < NOW() THEN 'Expired' ELSE 'Active' END as status, COUNT(*) as count FROM indicators WHERE expiration IS NOT NULL GROUP BY status" | eval percentage=round(count/sum(count)*100, 2)
+      ```
     - Tracks indicator freshness.
 
 3. Top Pulses by Indicator Count (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT p.id, p.name, COUNT(i.id) as indicator_count FROM pulses p LEFT JOIN indicators i ON p.id = i.pulse_id GROUP BY p.id, p.name ORDER BY indicator_count DESC LIMIT 10"'
+    - Query:
+      ```
+      | dbxquery connection=threat_intel query="SELECT p.id, p.name, COUNT(i.id) as indicator_count FROM pulses p LEFT JOIN indicators i ON p.id = i.pulse_id GROUP BY p.id, p.name ORDER BY indicator_count DESC LIMIT 10"'
+      ```
     - Highlights pulses with the most IoCs.
 
 4. Targeted Countries (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT targeted_countries FROM pulses" | spath input=targeted_countries | mvexpand targeted_countries | stats count by targeted_countries'
+    - Query:
+      ```
+      | dbxquery connection=threat_intel query="SELECT targeted_countries FROM pulses" | spath input=targeted_countries | mvexpand targeted_countries | stats count by targeted_countries
+      ```
     - Shows geographic threat focus.
 
 5. Top Cybersecurity Tags (Bar Chart):
-    - Query: '| dbxquery connection=threat_intel query="SELECT tags FROM pulses" | spath input=tags | mvexpand tags | stats count by tags | sort -count | head 10'
+    - Query:
+      ```
+      | dbxquery connection=threat_intel query="SELECT tags FROM pulses" | spath input=tags | mvexpand tags | stats count by tags | sort -count | head 10
+      ```
     - Identifies common threat themes.
 
 ### Features
@@ -65,10 +80,10 @@ Threat-Intel-ETL/
 └── README.md
 ```
 ## Dependencies
-- 'requests'
-- 'OTXv2'
-- 'psycopg2'
-- 'pandas'
+- requests
+- OTXv2
+- psycopg2
+- pandas
 
 Install with:
 ```bash
