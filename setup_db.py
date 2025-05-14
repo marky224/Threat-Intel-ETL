@@ -1,6 +1,6 @@
 # setup_db.py
 # One-Time Configuration
-# Create Database in Postgresql prior
+# Install PostgreSQL and Create Database in Postgresql prior to this script via command line / bash
 import psycopg2
 from src.config import DB_CONFIG
 
