@@ -61,7 +61,7 @@ def transform_pulses(pulses_data):
     indicators_df = pd.DataFrame(indicators_list)
 
     # Export to Excel files
-    print("Saving 'pulses' and 'indicators' as Excel files")
+    print("Saving 'pulses' and 'indicators' as CSV files")
     pulses_df.to_csv('pulses.csv', index=False)
     indicators_df.to_csv('indicators.csv', index=False)
 
