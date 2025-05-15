@@ -38,7 +38,7 @@ def transform_pulses(pulses_data):
         # Indicators within the pulse
         for indicator in pulse["indicators"]:
             indicator_data = {
-                "id": indicator["id"],
+                "id": int(indicator["id"]),
                 "pulse_id": pulse["id"],  # Link to parent pulse
                 "indicator": indicator["indicator"],
                 "type": indicator["type"],
@@ -65,15 +65,3 @@ def transform_pulses(pulses_data):
     indicators_df.drop_duplicates(subset=["id"], inplace=True)
 
     return pulses_df, indicators_df
-
-if __name__ == "__main__":
-    # Example usage with sample JSON (replace with actual data from extract.py)
-    with open("sample_data.json", "r") as f:  # Assume this matches your schema
-        data = json.load(f)
-        pulses = data["results"]
-
-    pulses_df, indicators_df = transform_pulses(pulses)
-    print("Pulses DataFrame:")
-    print(pulses_df.head())
-    print("\nIndicators DataFrame:")
-    print(indicators_df.head())
