@@ -1,18 +1,22 @@
 import psycopg2
+from datetime import datetime
 from src.config import DB_CONFIG
+
 
 def run_all_queries():
     """
-    Execute all SQL queries against the threat_intel database and return results.
+    Execute all SQL queries against the threat_intel database, print results, and return them.
     Returns a dictionary with query names as keys and result lists as values.
     """
     results = {}
-    
+
     # Connect to the database
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         cur = conn.cursor()
+        print("Connected to database successfully.")
     except Exception as e:
+        print(f"Failed to connect to database: {e}")
         return {"error": f"Failed to connect to database: {e}"}
 
     queries = [
@@ -126,15 +130,32 @@ def run_all_queries():
         }
     ]
 
-    # Run all queries
+    # Run all queries and print results
     for q in queries:
+        print(f"\n=== {q['name'].replace('_', ' ').title()} ===")
+        print(f"Query: {q['query'].strip()}")
         try:
             cur.execute(q["query"])
-            results[q["name"]] = cur.fetchall()
+            result = cur.fetchall()
+            results[q["name"]] = result
+            print("Result:")
+            if result:
+                for row in result:
+                    print(list(row))
+            else:
+                print("No results returned.")
         except Exception as e:
+            print(f"Error: {e}")
             results[q["name"]] = {"error": f"Query failed: {e}"}
 
-    # Close connection
+    # Close connection and print timestamp
     cur.close()
     conn.close()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')
+    print(f"\nAll queries executed. Connection closed.")
+    print(f"Queries executed at: {timestamp}")
     return results
+
+
+if __name__ == "__main__":
+    run_all_queries()
