@@ -30,7 +30,7 @@ CREATE TABLE pulses (
 
 -- Create indicators table for IoCs linked to pulses
 CREATE TABLE indicators (
-    id INTEGER PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     pulse_id VARCHAR(50) REFERENCES pulses(id) ON DELETE CASCADE,
     indicator TEXT NOT NULL,
     type VARCHAR(50),
