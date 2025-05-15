@@ -16,9 +16,3 @@ def extract_otx_pulses():
     except Exception as e:
         print(f"Error fetching OTX data: {e}")
         return []
-
-if __name__ == "__main__":
-    pulses = extract_otx_pulses()
-    print(f"Fetched {len(pulses)} pulses")
-    if pulses:
-        print("Sample pulse:", pulses[0])
