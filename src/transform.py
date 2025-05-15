@@ -62,8 +62,8 @@ def transform_pulses(pulses_data):
 
     # Export to Excel files
     print("Saving 'pulses' and 'indicators' as Excel files")
-    pulses_df.to_excel('pulses.xlsx')
-    indicators_df.to_excel('indicators.xlsx')
+    pulses_df.to_csv('pulses.csv')
+    indicators_df.to_csv('indicators.csv')
 
     # Remove duplicates based on primary keys
     pulses_df.drop_duplicates(subset=["id"], inplace=True)
