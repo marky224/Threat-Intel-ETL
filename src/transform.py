@@ -59,14 +59,14 @@ def transform_pulses(pulses_data):
     # Create DataFrames
     pulses_df = pd.DataFrame(pulses_list)
     indicators_df = pd.DataFrame(indicators_list)
-
+    
+    # Remove duplicates based on primary keys
+    pulses_df.drop_duplicates(subset=["id"], inplace=True)
+    indicators_df.drop_duplicates(subset=["id"], inplace=True)
+    
     # Export to Excel files
     print("Saving 'pulses' and 'indicators' as CSV files")
     pulses_df.to_csv('pulses.csv', index=False)
     indicators_df.to_csv('indicators.csv', index=False)
-
-    # Remove duplicates based on primary keys
-    pulses_df.drop_duplicates(subset=["id"], inplace=True)
-    indicators_df.drop_duplicates(subset=["id"], inplace=True)
 
     return pulses_df, indicators_df
