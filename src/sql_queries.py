@@ -1,3 +1,4 @@
+# src/sql_queries.py
 import psycopg2
 from datetime import datetime
 from src.config import DB_CONFIG
