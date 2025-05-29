@@ -9,6 +9,7 @@ This project automates the collection and analysis of threat intelligence data:
 - **Transform:** Processes OTX data into structured tables using Pandas.
 - **Load:** Stores data in a PostgreSQL database (`threat_intel`).
 - **Visualize:** Displays insights in Splunk via DB Connect with interactive dashboards.
+- **Analyze:** Executes SQL queries to extract key metrics and sends results to LLMs (Grok and Claude) for advanced insights.
 
 ### Data
 - **Pulses:** 6,836 records (top-level threat metadata).
@@ -73,6 +74,8 @@ Threat-Intel-ETL/
 │   ├── extract.py       # OTX data fetch
 │   ├── transform.py     # Data processing
 │   └── load.py          # PostgreSQL load
+│   ├── sql_queries.py   # SQL queries for analysis
+│   └── send_to_llms.py  # LLM integration for insights
 ├── images/              # Screenshots of IDE and dashboard
 │   ├── pycharm_ide_screenshot.png
 │   ├── splunk_dashboard_screenshot.png
@@ -97,6 +100,8 @@ pip install -r requirements.txt
 - **Splunk Enterprise:** With Splunk DB Connect app.
 - **Java JRE 11:** For DB Connect (e.g., OpenJDK from Adoptium).
 - **OTX API Key:** From [otx.alienvault.com](https://otx.alienvault.com).
+- **Grok API Key:** Visit [console.x.ai](https://console.x.ai), sign up or log in, and navigate to the API section to create a key. You may need to be a team owner or have a developer role to generate the key.
+- **Claude API Key:** Sign up at the Anthropic Console, navigate to the API section, and generate a key. You may need to purchase credits or join a waitlist, as direct access can be limited.
 
 ## Setup
 ![PyCharm IDE with ETL Scripts](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/Threat-ETL-Intel%20-%20Python.jpg)
@@ -128,7 +133,8 @@ pip install -r requirements.txt
 ```python
 # src/config.py
 OTX_API_KEY = "your-64-character-otx-api-key"  # Get from OTX account
-DB_CONFIG = {
+GROK_API_KEY = "your-grok-api-key"             # Get from console.x.ai
+CLAUDE_API_KEY = "your-claude-api-key"         # Get from Anthropic ConsoleDB_CONFIG = {
     "dbname": "threat_intel",
     "user": "your-postgres-username",          # e.g., "postgres"
     "password": "your-postgres-password",      # e.g., a strong password
@@ -177,10 +183,46 @@ python main.py
   - Name: 'threat_intel', Type: PostgreSQL, Host: 'localhost', Port: '5432', Database: 'threat_intel', Identity: 'postgres_threat_intel'.
   - Test and save.
 
+### 6. SQL Queries for Threat Analysis
+
+The pipeline uses SQL queries to extract meaningful metrics from the PostgreSQL database, defined in `src/sql_queries.py`:
+
+- **Total Pulses and Indicators:** Counts the total number of pulses and indicators.
+- **Indicator Types:** Identifies the top 5 indicator types by count (e.g., FileHash-SHA256, domain).
+- **Top Targeted Countries:** Lists the top 5 countries targeted by threats.
+- **Top Threat Tags:** Identifies the top 5 tags (e.g., malware, phishing).
+- **Expired vs. Active Indicators:** Counts expired and active indicators.
+- **Top Pulse by Indicator Count:** Finds the pulse with the most associated indicators.
+- **Pulse Trends Over Time:** Tracks pulses created each month over the last 6 months.
+- **Top Industries:** Identifies the top 5 industries targeted by threats.
+
+These queries were executed on May 15, 2025, producing results used for further analysis.
+
+### 7. Leveraging LLMs for Insights
+
+The pipeline sends query results to two LLMs—Grok (created by xAI) and Claude—for deeper insights, implemented in `src/send_to_llms.py`:
+
+![LLM Summary Python Script](https://github.com/marky224/etl-api-siem-threat-intel/blob/main/images/LLM-summary-python.jpg)
+
+*Python script for sending query results to LLMs for analysis.*
+
+### Key Findings (as of May 15, 2025):
+
+- **Total Pulses:** 7,128
+- **Total Indicators:** 412,985
+- **Active Indicators:** 412,817 (99.96%)
+- **Top Indicator Type:** FileHash-SHA256 (134,393 indicators)
+- **Top Targeted Countries:** United States (426 pulses), Ukraine (280), Russia (237)
+- **Top Threat Tags:** Malware (608 pulses), Phishing (564), Ransomware (489)
+- **Top Industries:** Government (838 pulses), Finance (381)
+- **Top Pulse:** "Highway Robbery 2.0: How Attackers Are Exploiting Toll Systems in Phishing Scams" (29,930 indicators)
+
+Both LLMs highlighted the need for enhanced protection against phishing and advanced persistent threats (APTs), especially for critical infrastructure and government systems.
+
+
 ## Notes
-- **Data Volume**: 6,836 pulses, 378,669 indicators as of March 8, 2025.
+- **Data Volume:** 7,128 pulses, 412,985 indicators as of May 15, 2025.
 - **Splunk Access**: Localhost:8000, admin credentials required.
 
 ## Contributing
-Pull requests welcome! Focus on new visualizations or performance tweaks.
-
+Pull requests welcome! Focus on new visualizations, performance tweaks, or enhanced LLM analysis.
