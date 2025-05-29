@@ -203,7 +203,7 @@ These queries were executed on May 15, 2025, producing results used for further 
 
 The pipeline sends query results to two LLMs—Grok (created by xAI) and Claude—for deeper insights, implemented in `src/send_to_llms.py`:
 
-![LLM Summary Python Script](https://github.com/marky224/etl-api-siem-threat-intel/blob/main/images/LLM-summary-python.jpg)
+![LLM Summary Python Script](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/LLM-summary-python.jpg)
 
 *Python script for sending query results to LLMs for analysis.*
 
@@ -219,7 +219,6 @@ The pipeline sends query results to two LLMs—Grok (created by xAI) and Claude�
 - **Top Pulse:** "Highway Robbery 2.0: How Attackers Are Exploiting Toll Systems in Phishing Scams" (29,930 indicators)
 
 Both LLMs highlighted the need for enhanced protection against phishing and advanced persistent threats (APTs), especially for critical infrastructure and government systems.
-
 
 ## Notes
 - **Data Volume:** 7,128 pulses, 412,985 indicators as of May 15, 2025.
