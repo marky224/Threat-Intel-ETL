@@ -108,13 +108,6 @@ pip install -r requirements.txt
 ![PyCharm IDE with ETL Scripts](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/Threat-ETL-Intel%20-%20Python.jpg)
 *PyCharm IDE showing ETL scripts (main.py, setup_db.py, extract.py, transform.py) split-screen for development.*
 
-learn about GitHub images
-
-explore Splunk visualizations
-
-simplify captions
-
-
 
 ### 1. Clone the Repository
 ```bash
@@ -205,7 +198,7 @@ The pipeline sends query results to two LLMsâ€”Grok (created by xAI) and Claudeâ
 
 ![LLM Summary Python Script](https://github.com/marky224/Threat-Intel-ETL/blob/main/images/LLM-summary-python.jpg)
 
-*Python script for sending query results to LLMs for analysis.*
+*Results from the Python script for sending query results to LLMs for analysis.*
 
 ### Key Findings (as of May 15, 2025):
 
