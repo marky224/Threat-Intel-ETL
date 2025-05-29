@@ -79,6 +79,8 @@ Threat-Intel-ETL/
 ├── images/              # Screenshots of IDE and dashboard
 │   ├── pycharm_ide_screenshot.png
 │   ├── splunk_dashboard_screenshot.png
+│   ├── SQL-queries-python.jpg
+│   ├── LLM-summary-python.jpg
 ├── requirements.txt     # Python dependencies
 └── README.md
 ```
