@@ -12,8 +12,8 @@ This project automates the collection and analysis of threat intelligence data:
 - **Analyze:** Executes SQL queries to extract key metrics and sends results to LLMs (Grok and Claude) for advanced insights.
 
 ### Data
-- **Pulses:** 6,836 records (top-level threat metadata).
-- **Indicators:** 378,669 records (IoCs linked to pulses).
+- **Pulses:** 7,128 records (top-level threat metadata).
+- **Indicators:** 412,985 records (IoCs linked to pulses).
 
 ## Splunk Dashboard: Threat Intel Overview
 Visualizes OTX threat intelligence with interactive panels:
@@ -87,6 +87,7 @@ Threat-Intel-ETL/
 - OTXv2
 - psycopg2
 - pandas
+- anthropic
 
 Install with:
 ```bash
@@ -183,7 +184,7 @@ python main.py
   - Name: 'threat_intel', Type: PostgreSQL, Host: 'localhost', Port: '5432', Database: 'threat_intel', Identity: 'postgres_threat_intel'.
   - Test and save.
 
-### 6. SQL Queries for Threat Analysis
+### 7. SQL Queries for Threat Analysis
 
 The pipeline uses SQL queries to extract meaningful metrics from the PostgreSQL database, defined in `src/sql_queries.py`:
 
@@ -198,7 +199,7 @@ The pipeline uses SQL queries to extract meaningful metrics from the PostgreSQL 
 
 These queries were executed on May 15, 2025, producing results used for further analysis.
 
-### 7. Leveraging LLMs for Insights
+### 8. Leveraging LLMs for Insights
 
 The pipeline sends query results to two LLMs—Grok (created by xAI) and Claude—for deeper insights, implemented in `src/send_to_llms.py`:
 
