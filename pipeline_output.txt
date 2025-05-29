@@ -1,0 +1,200 @@
+Starting ETL pipeline...
+Gathering 'pulses' and 'indicators' from Alienvault OTX...
+Fetched 7128 pulses.
+Saving 'pulses' and 'indicators' as CSV files
+Loading 'pulses' and 'indicators' into 'threat_intel' postgreSQL database
+Data loaded into database successfully!
+Generating LLM Response Results
+Connected to database successfully.
+
+=== Total Pulses ===
+Query: SELECT COUNT(*) FROM pulses
+Result:
+[7128]
+
+=== Total Indicators ===
+Query: SELECT COUNT(*) FROM indicators
+Result:
+[412985]
+
+=== Indicator Types ===
+Query: SELECT type, COUNT(*) as count FROM indicators GROUP BY type ORDER BY count DESC LIMIT 5
+Result:
+['FileHash-SHA256', 134393]
+['domain', 65200]
+['FileHash-MD5', 64366]
+['FileHash-SHA1', 54350]
+['hostname', 48969]
+
+=== Top Countries ===
+Query: SELECT country, COUNT(*) as count
+                FROM (SELECT jsonb_array_elements_text(targeted_countries) as country FROM pulses) as sub
+                GROUP BY country ORDER BY count DESC LIMIT 5
+Result:
+['United States of America', 426]
+['Ukraine', 280]
+['Russian Federation', 237]
+['India', 229]
+['Germany', 189]
+
+=== Top Tags ===
+Query: SELECT tag, COUNT(*) as count
+                FROM (SELECT jsonb_array_elements_text(tags) as tag FROM pulses) as sub
+                GROUP BY tag ORDER BY count DESC LIMIT 5
+Result:
+['malware', 608]
+['phishing', 564]
+['ransomware', 489]
+['powershell', 296]
+['apt', 282]
+
+=== Expired Active ===
+Query: SELECT
+                    SUM(CASE WHEN expiration < NOW() THEN 1 ELSE 0 END) as expired,
+                    SUM(CASE WHEN expiration >= NOW() OR expiration IS NULL THEN 1 ELSE 0 END) as active
+                FROM indicators
+Result:
+[168, 412817]
+
+=== Top Pulse ===
+Query: SELECT p.id, p.name, COUNT(i.id) as indicator_count
+                FROM pulses p LEFT JOIN indicators i ON p.id = i.pulse_id
+                GROUP BY p.id, p.name ORDER BY indicator_count DESC LIMIT 1
+Result:
+['67cee3481de685393015d1b3', 'Highway Robbery 2.0: How Attackers Are Exploiting Toll Systems in Phishing Scams', 29930]
+
+=== Samples ===
+Query: SELECT p.id, p.name, p.description, i.type, i.indicator
+                FROM pulses p JOIN indicators i ON p.id = i.pulse_id
+                LIMIT 3
+Result:
+['67ebff51da5765b1e4d9509e', 'From Contagious to ClickFake Interview: Lazarus leveraging the ClickFix tactic', "Lazarus, a North Korean state-sponsored threat actor, has launched a new campaign called ClickFake Interview targeting cryptocurrency job seekers. This campaign, an evolution of the previously documented Contagious Interview, uses fake job interview websites to deploy the GolangGhost backdoor on Windows and macOS systems. The infection chain leverages the ClickFix tactic, downloading and executing malicious payloads during the interview process. The campaign primarily targets centralized finance (CeFi) entities, aligning with Lazarus' focus on cryptocurrency-related targets. Notable changes include targeting non-technical roles and using ReactJS-based websites for the fake interviews. The malware provides remote control and data theft capabilities, including browser information exfiltration.", 'domain', 'evalvidz.com']
+['680a5131b626671be6e61ef2', 'Power Parasites: Job & Investment Scam Campaign Targets Energy Companies and Major Brands', "A scam campaign dubbed 'Power Parasites' is targeting individuals in Asian countries through deceptive websites, social media groups, and Telegram channels. The campaign exploits the names and branding of global energy companies and other major brands to conduct job and investment scams. Victims are primarily located in Bangladesh, Nepal, and India. The operation uses over 150 domains, impersonating companies such as Siemens Energy, Schneider Electric, EDF Energy, Repsol S.A., and Suncor Energy. The scammers employ a combination of fake job offers and fraudulent investment platforms, often requesting personal and financial information from victims. The campaign remains active and continues to evolve, targeting additional prominent brands across various industries.", 'domain', 'amd-biz.mom']
+['6807c698b42f069fc7334d48', 'APT Group Profiles - Larva-24005', "A new operation named Larva-24005, linked to the Kimsuky group, has been discovered by ASEC. The threat actors exploited RDP vulnerabilities to infiltrate systems, installing MySpy malware and RDPWrap for continuous remote access. They also deployed keyloggers to record user inputs. The group has been targeting South Korea's software, energy, and financial industries since October 2023, with attacks extending to multiple countries worldwide. Their methods include exploiting the BlueKeep vulnerability (CVE-2019-0708) and using phishing emails. The attackers employ various tools such as RDP scanners, droppers, and keyloggers in their multi-stage attack process.", 'CVE', 'CVE-2019-0708']
+
+=== Pulse Trends ===
+Query: SELECT DATE_TRUNC('month', created) AS month, COUNT(*) AS pulse_count
+                FROM pulses
+                GROUP BY DATE_TRUNC('month', created)
+                ORDER BY month DESC
+                LIMIT 6
+Result:
+[(2025, 5, 1, 0, 0), 58]
+[(2025, 4, 1, 0, 0), 147]
+[(2025, 3, 1, 0, 0), 115]
+[(2025, 2, 1, 0, 0), 103]
+[(2025, 1, 1, 0, 0), 97]
+[(2024, 12, 1, 0, 0), 115]
+
+=== Tlp Indicators ===
+Query: SELECT p.tlp, i.type, COUNT(i.id) AS indicator_count
+                FROM pulses p
+                JOIN indicators i ON p.id = i.pulse_id
+                WHERE p.tlp IN ('red', 'amber', 'green', 'white')
+                GROUP BY p.tlp, i.type
+                ORDER BY indicator_count DESC
+                LIMIT 5
+Result:
+['white', 'FileHash-SHA256', 128145]
+['white', 'domain', 62381]
+['white', 'FileHash-MD5', 59180]
+['white', 'FileHash-SHA1', 51905]
+['white', 'hostname', 45300]
+
+=== Multi Type Pulses ===
+Query: SELECT p.id, p.name, COUNT(DISTINCT i.type) AS type_count
+                FROM pulses p
+                JOIN indicators i ON p.id = i.pulse_id
+                GROUP BY p.id, p.name
+                HAVING COUNT(DISTINCT i.type) > 1
+                ORDER BY type_count DESC
+                LIMIT 3
+Result:
+['555a772bb45ff55497b42359', "Cmstar Downloader: Lurid and Enfal's New Cousin", 9]
+['5d89e04cea5c55ee87a6aa05', 'Tibetan Groups Targeted with 1-Click Mobile Exploits', 9]
+['66deab9db2c98c27aa4b5576', 'Russian Military Cyber Actors Target US and Global Critical Infrastructure', 9]
+
+=== Expiring Indicators ===
+Query: SELECT i.type, i.indicator, i.expiration
+                FROM indicators i
+                WHERE i.expiration IS NOT NULL
+                  AND i.expiration BETWEEN NOW() AND NOW() + INTERVAL '30 days'
+                ORDER BY i.expiration
+                LIMIT 5
+Result:
+['IPv4', '194.102.104.79', datetime.datetime(2025, 5, 15, 19, 0)]
+['IPv4', '156.244.19.63', datetime.datetime(2025, 5, 15, 19, 0)]
+['IPv4', '172.86.115.43', datetime.datetime(2025, 5, 15, 20, 0)]
+['IPv4', '80.64.30.100', datetime.datetime(2025, 5, 15, 20, 0)]
+['IPv4', '80.64.30.101', datetime.datetime(2025, 5, 15, 20, 0)]
+
+=== Top Industries ===
+Query: SELECT industry, COUNT(*) AS pulse_count
+                FROM (SELECT jsonb_array_elements_text(industries) AS industry FROM pulses) AS sub
+                GROUP BY industry
+                ORDER BY pulse_count DESC
+                LIMIT 5
+Result:
+['Government', 838]
+['Finance', 381]
+['Technology', 317]
+['Defense', 229]
+['Energy', 218]
+
+All queries executed. Connection closed.
+Queries executed at: 2025-05-15 18:21:49
+=== Grok Response ===
+Summary:
+The AlienVault OTX threat intelligence data collected on 2025-05-15 provides a comprehensive overview of current cyber threats,
+with 7,128 pulses and 412,985 indicators. The majority of indicators are active (99.96%), with FileHash-SHA256 being the most
+common type (134,393). The United States is the most targeted country (426 pulses), followed by Ukraine and Russia. Malware,
+phishing, and ransomware are the dominant threat tags, while government and finance sectors are the most targeted industries.
+A significant phishing-related pulse, 'Highway Robbery 2.0,' contains the highest number of indicators (29,930). Temporal
+trends show a decline in pulses in May 2025 (58) compared to April (147).
+
+Key Insights:
+1. **Dominance of Hash-Based Indicators**: FileHash-SHA256, MD5, and SHA1 dominate the indicator types, comprising over
+60% of total indicators, suggesting a focus on identifying specific malware variants and files as primary threat vectors.
+2. **Geopolitical Targeting**: The United States, Ukraine, and Russia are among the most targeted countries, likely reflecting
+geopolitical tensions and the strategic importance of these regions to threat actors.
+3. **Prevalence of Phishing and Ransomware**: With phishing (564 pulses) and ransomware (489 pulses) among the top tags,
+alongside the significant 'Highway Robbery 2.0' phishing pulse, these threats pose a critical risk, especially to targeted
+industries like government and finance.
+4. **Industry-Specific Risks**: Government (838 pulses) and finance (381 pulses) sectors are disproportionately targeted,
+indicating a focus by threat actors on high-value and critical infrastructure targets.
+5. **Temporal Decline in Activity**: The drop in pulses from 147 in April to 58 in May 2025 may indicate a temporary lull in
+reporting or threat activity, warranting further monitoring to determine if this is a trend or anomaly.<|separator|>
+
+Assistant: **Summary:**
+The AlienVault OTX threat intelligence data from 2025-05-15 reveals a landscape of 7,128 pulses and 412,985 indicators, with
+99.96% active. FileHash-SHA256 is the leading indicator type (134,393), while the United States (426 pulses), Ukraine, and
+Russia are the most targeted countries. Malware, phishing, and ransomware dominate threat tags, with government and finance
+as the primary targeted industries. The 'Highway Rob
+
+=== Claude Response ===
+Summary:
+The data shows significant cyber threat activity with over 7,000 pulses and 400,000+ indicators, predominantly focused on
+malware, phishing, and ransomware attacks. File hashes and domains comprise the majority of indicators, with almost all
+(99.96%) being active. Government and financial sectors are the most targeted, with the United States, Ukraine, and Russia
+experiencing the highest number of threats.
+
+Key Insights:
+
+1. Critical Infrastructure Focus:
+- The presence of high-profile pulses targeting critical infrastructure (Russian military actors) and the dominance of
+government/finance/energy sectors suggests a concentrated effort against essential services
+- This is particularly concerning given the geopolitical context with Ukraine and Russia among top targeted countries
+
+2. Sophisticated Attack Patterns:
+- The prevalence of multiple indicator types (9 types) in top pulses and the high volume of file hashes suggests sophisticated,
+multi-vector attacks
+- The combination of powershell and APT tags indicates advanced persistent threats using sophisticated techniques
+
+3. Emerging Threat Trend:
+- The "Highway Robbery 2.0" pulse with nearly 30,000 indicators targeting toll systems represents a novel attack vector that
+could signal a new trend in infrastructure-targeted phishing
+- Monthly pulse trends show consistent activity with a recent spike in April 2025 (147 pulses), suggesting increased threat activity
+
+These patterns suggest a need for enhanced protection of critical infrastructure and government systems, with particular
+attention to sophisticated phishing and APT campaigns.
+Pipeline complete!
