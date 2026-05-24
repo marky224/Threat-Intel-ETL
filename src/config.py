@@ -1,0 +1,18 @@
+# src/config.py
+
+# AlienVault OTX API Key for fetching threat intelligence
+OTX_API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  # Update to Credentials for OTI DirectConnect API
+
+# xAI API key for accessing Grok
+GROK_API_KEY = "your-xai-api-key" # Update to Credentials for Grok API
+
+# Anthropic API key for accessing Claude
+CLAUDE_API_KEY = "your-anthropic-api-key" # Update to Credentials for Claude API
+
+# PostgreSQL Database Configuration
+DB_CONFIG = {                                                                      # Credentials for PostgreSQL Database
+    "dbname": "threat_intel",
+    "password": "XXXXXXXXXX",      # Update
+    "host": "localhost",
+    "port": "5432"
+}
